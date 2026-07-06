@@ -15,9 +15,10 @@ export interface LanyardData {
   discord_status: DiscordStatus;
 }
 
-// Hardcoded fallback; prebuild script writes the real value to NEXT_PUBLIC_DISCORD_ID
+// luca's Discord user ID (public — safe to hardcode). An env var can still
+// override it at build time, but the literal guarantees it works everywhere.
 const DISCORD_ID =
-  process.env.NEXT_PUBLIC_DISCORD_ID ?? "1481359855045447802";
+  process.env.NEXT_PUBLIC_DISCORD_ID || "1098229551588458527";
 
 export function useLanyard(): LanyardData | null {
   const [data, setData] = useState<LanyardData | null>(null);

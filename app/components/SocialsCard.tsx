@@ -46,7 +46,7 @@ export default function SocialsCard({ lanyardData, inView }: Props) {
     {
       name: "discord",
       username: "y3e",
-      href: `https://discord.com/users/${process.env.NEXT_PUBLIC_DISCORD_ID ?? ""}`,
+      href: `https://discord.com/users/${process.env.NEXT_PUBLIC_DISCORD_ID || "1098229551588458527"}`,
       icon: <DiscordIcon />,
     },
     {
