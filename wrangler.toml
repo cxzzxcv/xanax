@@ -1,0 +1,8 @@
+# Cloudflare Workers config — serves the static Next.js export in /out
+# as static assets (no server code). Used by `npx wrangler deploy`.
+name = "xanax"
+compatibility_date = "2024-11-01"
+
+[assets]
+directory = "./out"
+not_found_handling = "404-page"
