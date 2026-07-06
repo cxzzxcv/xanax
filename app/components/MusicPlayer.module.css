@@ -1,0 +1,311 @@
+/* =========================================================
+   Music player — anchored to one of the four hero corners
+   based on data-position. Vinyl-style spinning disc with
+   optional cover art, a thin progress track, three minimal
+   control buttons. Size + offsets driven by CSS vars set
+   inline by playerStyleVars() in options.tsx.
+   ========================================================= */
+.player {
+  position: absolute;
+  width: var(--player-width, 168px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.85);
+  user-select: none;
+  /* Mouse-parallax. Fallbacks of 1 keep the wobble working even though
+     the player is a sibling of .leftStack (where --wobble-* are set). */
+  transform: translate3d(
+    calc(var(--mx, 0) * -8px * var(--wobble-x, 1)),
+    calc(var(--my, 0) * -4px * var(--wobble-y, 1)),
+    0
+  );
+  will-change: transform;
+  z-index: 2;
+}
+
+/* ---- Position anchors. The data-position attribute is set by the
+       component from playerOptions.position. ---- */
+/* Defaults match the original (viewport-responsive) placement —
+   right side scales 28px..80px with width, bottom hugs above the
+   players-visited counter. Override via --player-edge-x/y if needed. */
+.player[data-position="bottom-right"] {
+  right: var(--player-edge-x, clamp(45px, 7vw, 105px));
+  bottom: var(--player-edge-y, calc(clamp(28px, 5vh, 56px) + 26px));
+}
+.player[data-position="bottom-left"] {
+  left: var(--player-edge-x, clamp(45px, 7vw, 105px));
+  bottom: var(--player-edge-y, calc(clamp(28px, 5vh, 56px) + 26px));
+}
+.player[data-position="top-right"] {
+  right: var(--player-edge-x, clamp(45px, 7vw, 105px));
+  top: var(--player-edge-y, clamp(28px, 5vh, 56px));
+}
+.player[data-position="top-left"] {
+  left: var(--player-edge-x, clamp(45px, 7vw, 105px));
+  top: var(--player-edge-y, clamp(28px, 5vh, 56px));
+}
+
+/* =========================================================
+   The disc itself
+   ========================================================= */
+.disc {
+  position: relative;
+  width: var(--disc-size, 88px);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%,
+      #1a1a1d 0%,
+      #1a1a1d 28%,
+      #0e0e10 30%,
+      #1a1a1d 32%,
+      #0e0e10 50%,
+      #161618 70%,
+      #0a0a0c 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 0 24px rgba(0, 0, 0, 0.7),
+    0 6px 20px rgba(0, 0, 0, 0.55);
+  /* Hidden by default; spinning class adds the animation */
+  animation: discSpin 8s linear infinite;
+  animation-play-state: paused;
+}
+
+.disc.spinning {
+  animation-play-state: running;
+}
+
+@keyframes discSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Concentric vinyl grooves */
+.discGrooves {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.02) 0px,
+    rgba(255, 255, 255, 0.02) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  pointer-events: none;
+}
+
+/* Inner circle — holds the cover art (or fallback glyph) */
+.discInner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--cover-size, 58%);
+  height: var(--cover-size, 58%);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.coverFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 35% 30%,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0.04) 40%,
+      rgba(255, 255, 255, 0) 70%),
+    linear-gradient(135deg, #2a2a2e 0%, #15151a 100%);
+  color: rgba(255, 255, 255, 0.55);
+  font-family: "Barlow Condensed", var(--font-barlow), sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.05em;
+}
+
+/* Full-disc cover mode — cover fills the entire disc */
+.disc[data-full-cover="true"] .discInner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+/* Center spindle hole */
+.discHole {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #050507;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Soft top-left specular highlight */
+.discShine {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 25%,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0) 45%
+  );
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* =========================================================
+   Title + progress + time
+   ========================================================= */
+.title {
+  margin-top: 4px;
+  font-family: "Barlow Condensed", var(--font-barlow), sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
+}
+
+.progressTrack {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.progressTrack:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.progressFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #ffffff;
+  transition: width 0.12s linear;
+}
+
+.timeRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.5);
+  font-variant-numeric: tabular-nums;
+}
+
+.timeSep {
+  opacity: 0.4;
+}
+
+/* =========================================================
+   Controls — prev / play / next
+   ========================================================= */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 2px;
+}
+
+.ctrlBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: color 0.2s var(--ease, cubic-bezier(0.4, 0, 0.2, 1)),
+    transform 0.2s var(--ease, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.ctrlBtn:hover,
+.ctrlBtn:focus-visible {
+  color: #fff;
+  outline: none;
+}
+
+.ctrlBtn:active {
+  transform: scale(0.92);
+}
+
+.playBtn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.85);
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease),
+    background-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.playBtn:hover,
+.playBtn:focus-visible {
+  border-color: #fff;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+/* =========================================================
+   Responsive — collapse a touch on narrow screens. We scale
+   the inline-set vars down by ~15% rather than overriding
+   them, so the user's playerOptions.discSize / playerWidth
+   stays in control of the base look.
+   ========================================================= */
+@media (max-width: 768px) {
+  /* Force player to top-right on all mobile screens */
+  .player,
+  .player[data-position="bottom-right"],
+  .player[data-position="bottom-left"],
+  .player[data-position="top-left"] {
+    right: clamp(16px, 4vw, 40px) !important;
+    left: auto !important;
+    top: clamp(16px, 3vh, 28px) !important;
+    bottom: auto !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .player {
+    width: calc(var(--player-width, 168px) * 0.85);
+  }
+  .disc {
+    width: calc(var(--disc-size, 88px) * 0.85);
+  }
+  .title {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+}

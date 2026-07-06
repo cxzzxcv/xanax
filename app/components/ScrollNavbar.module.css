@@ -1,0 +1,91 @@
+/* Scroll-driven dark overlay — background + opacity both set inline via JS */
+.leftOverlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Fixed top navbar — fully transparent, only the signature image */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 18px clamp(24px, 4vw, 60px);
+  /* no background — fully transparent */
+  pointer-events: none;
+}
+
+/* Entrance: slide down from above + fade in */
+.in {
+  animation: navEnter 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  pointer-events: all;
+}
+
+/* Exit: slide back up + fade out */
+.out {
+  animation: navLeave 0.4s cubic-bezier(0.6, 0.05, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes navEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+  }
+}
+
+@keyframes navLeave {
+  from {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.92);
+  }
+}
+
+.btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.btn:hover {
+  opacity: 0.75;
+  transform: scale(0.97);
+}
+
+.btn:active {
+  transform: scale(0.92);
+  opacity: 0.5;
+}
+
+.sig {
+  font-family: var(--font-spanish), serif;
+  font-size: 30px;
+  line-height: 36px;
+  color: #fff;
+  display: block;
+  user-select: none;
+}
+
+@media (max-width: 768px) {
+  .nav {
+    justify-content: center;
+  }
+}
